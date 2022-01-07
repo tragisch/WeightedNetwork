@@ -1,4 +1,54 @@
 using SimpleWeightedGraphs
+using SparseArrays
+
+abstract type GraphDataType end
+
+mutable struct AdjacencyList <: GraphDataType
+    flist::Vector{Array{Int64}}
+    flist_w::Vector{Array{Float64}}
+    blist::Vector{Array{Int64}}
+    blist_w::Vector{Array{Float64}}
+
+    directed::Bool
+end
+
+function Base.show(io::IO, p::AdjacencyList)
+    dire = "directed"
+    if !p.directed
+        dire = "undirected"
+    end
+
+    print(io, "AdjacencyList: $dire")
+end
+
+function AdjacencyList(mat::SparseMatrixCSC)
+
+    flist = Array{Int64}[]
+    flist_w = Array{Float64}[]
+    blist = Array{Int64}[]
+    blist_w = Array{Float64}[]
+    directed = false
+
+    for i = 1:mat.m
+        vec = findall(x -> x > 0, mat[i, :])
+        push!(flist, vec)
+        push!(flist_w, mat[i, vec'])
+    end
+
+    for i = 1:mat.n
+        vec = findall(x -> x > 0, mat[:, i])
+        push!(blist, vec)
+        push!(blist_w, mat[vec', i])
+    end
+
+    if mat != mat'
+        directed = true
+    end
+
+    return AdjacencyList(flist, flist_w, blist, blist_w, directed)
+
+end
+
 
 function rand_network(nodeNumber::Int, density::Float64; weights = 1:10)
     adj_matrix = zeros(nodeNumber, nodeNumber)
@@ -51,16 +101,16 @@ function adjacency_list(mat::SparseMatrixCSC; weighted = true)
 end
 
 import Graphs.LinAlg.adjacency_matrix
-function adjacency_matrix(list::Vector{Array{Array{Float64}}})
-    n = length(list)
+function adjacency_matrix(adj_list::AdjacencyList)
+    n = length(adj_list.flist)
     mat = zeros(n, n)
-    for i = 1:length(list)
-        node = list[i]
-        for el in node
-            edge = el
-            mat[i, trunc(Int, edge[1])] = edge[2]
+    for i = 1:n
+        row = adj_list.flist[i]
+        j = 1
+        for r in row
+            mat[i, r] = adj_list.flist_w[i][j]
+            j = j + 1
         end
-
     end
 
     return SparseMatrixCSC(mat)

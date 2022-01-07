@@ -6,6 +6,7 @@ export adjacency_list
 export adjacency_matrix
 export plot_network
 export plot_graph
+export AdjacencyList
 
 include("generating_networks.jl")
 include("plotting_networks.jl")
