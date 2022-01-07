@@ -1,4 +1,3 @@
-using SimpleWeightedGraphs
 using SparseArrays
 
 abstract type GraphDataType end
@@ -49,57 +48,6 @@ function AdjacencyList(mat::SparseMatrixCSC)
 
 end
 
-
-function rand_network(nodeNumber::Int, density::Float64; weights = 1:10)
-    adj_matrix = zeros(nodeNumber, nodeNumber)
-    for row in 1:nodeNumber
-        for element in 1:nodeNumber
-            if rand() < den && (element != row)
-                wert = rand(weights)
-                adj_matrix[row, element] = wert
-                adj_matrix[element, row] = wert
-            end
-        end
-    end
-    SimpleWeightedGraph(adj_matrix)
-end
-
-function rand_directed_network(nodeNumber::Int, density::Float64; weights = 1:10)
-    adj_matrix = zeros(nodeNumber, nodeNumber)
-    for row in 1:nodeNumber
-        for element in 1:nodeNumber
-            if rand() < den && (element != row)
-                wert = rand(weights)
-                adj_matrix[row, element] = wert
-            end
-        end
-    end
-    SimpleWeightedDiGraph(adj_matrix; permute = false)
-end
-
-function adjacency_list(mat::SparseMatrixCSC; weighted = true)
-
-    if weighted
-        adj = Array{Array{Float64}}[]
-        for i = 1:mat.m
-            ind_i = findall(x -> x > 0, mat[i, :])
-            line_i = []
-            for j = 1:length(ind_i)
-                push!(line_i, [ind_i[j], mat[i, ind_i[j]]])
-            end
-            push!(adj, line_i)
-        end
-        return adj
-    else
-        adj = Vector{Vector{Int64}}[]
-        for i = 1:mat.m
-            push!(adj, findall(x -> x > 0, mat[i, :]))
-        end
-        return adj
-    end
-
-end
-
 import Graphs.LinAlg.adjacency_matrix
 function adjacency_matrix(adj_list::AdjacencyList)
     n = length(adj_list.flist)
@@ -117,7 +65,7 @@ function adjacency_matrix(adj_list::AdjacencyList)
 
 end
 
-function node_list(adj_matrix::SparseMatrixCSC)
+function edge_list(adj_matrix::SparseMatrixCSC)
     b = []
     weigth = 0
     for c in 1:adj_matrix.m
@@ -131,7 +79,7 @@ function node_list(adj_matrix::SparseMatrixCSC)
     b
 end
 
-function node_list_to_matrix(adj_list)
+function edge_list_to_matrix(adj_list)
 
     dim = 0.0
     for vec in adj_list
