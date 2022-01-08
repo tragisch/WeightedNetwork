@@ -25,7 +25,7 @@ function rand_directed_network(nodeNumber::Int, density::Float64; weights = 1:10
             end
         end
     end
-    SimpleWeightedDiGraph(adj_matrix; permute = false)
+    SimpleWeightedDiGraph(adj_matrix)
 end
 
 function is_symmetric(M::SparseMatrixCSC)

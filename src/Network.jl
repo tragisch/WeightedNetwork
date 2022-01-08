@@ -5,6 +5,9 @@ using Graphs
 using SimpleWeightedGraphs
 using DataStructures
 using LinearAlgebra
+using Plots
+using GraphPlot
+using DataStructures
 
 
 export rand_network
@@ -13,10 +16,15 @@ export adjacency_matrix
 export plot_network
 export plot_graph
 export AdjacencyList
+export dfs_path
+export path_to_adj_matrix
+export bfs_path
+export node_color
 
 include("./data_types/graphdata_types.jl")
 include("./generators/random_networks.jl")
 include("./visualization/plotting_networks.jl")
+include("./algorithm/traversel.jl")
 
 
 end
