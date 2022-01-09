@@ -20,11 +20,15 @@ export dfs_path
 export path_to_adj_matrix
 export bfs_path
 export node_color
+export children
+export parent
+export neighbors
 
 include("./data_types/graphdata_types.jl")
 include("./generators/random_networks.jl")
 include("./visualization/plotting_networks.jl")
 include("./algorithm/traversel.jl")
+include("./algorithm/graph_utils.jl")
 
 
 end
