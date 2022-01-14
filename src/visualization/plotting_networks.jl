@@ -1,3 +1,6 @@
+# Functions for representing graphs with GraphPlot package
+# https://github.com/JuliaGraphs/GraphPlot.jl
+
 
 function plot_network(netw1::SparseMatrixCSC;
     layout = spring_layout,
@@ -12,7 +15,7 @@ function plot_network(netw1::SparseMatrixCSC;
     swn = SimpleWeightedDiGraph(netw1)
 
 
-    p=gplot(swn,
+    p = gplot(swn,
         layout = layout,
         NODESIZE = 0.14 / sqrt(n),
         nodefillc = color,
