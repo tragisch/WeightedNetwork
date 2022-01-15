@@ -9,7 +9,7 @@ function plot_network(netw1::SparseMatrixCSC;
     color = Colors.parse(Colorant, "turquoise")
 )
 
-    @show directed = !is_symmetric(netw1)
+    directed = !is_symmetric(netw1)
 
     n = netw1.m
     swn = SimpleWeightedDiGraph(netw1)
@@ -17,7 +17,7 @@ function plot_network(netw1::SparseMatrixCSC;
 
     p = gplot(swn,
         layout = layout,
-        NODESIZE = 0.30 / sqrt(n),
+        NODESIZE = 0.25 / sqrt(n),
         nodefillc = color,
         nodelabel = 1:n,
         nodelabeldist = 0,
