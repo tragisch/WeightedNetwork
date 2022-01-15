@@ -9,6 +9,8 @@ using Plots
 using GraphPlot
 using DataStructures
 using ShowGraphviz
+using Cairo
+using Fontconfig
 
 include("./data_types/graphdata_types.jl")
 include("./generators/random_networks.jl")
