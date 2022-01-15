@@ -131,9 +131,9 @@ function _topologicalsort_dfs(adj::SparseMatrixCSC)
         push!(L, node)
     end
 
-    while !(unmarked_node == nothing)
+    while !isnothing(unmarked_node)
         unmarked_node = findfirst(isequal(0), marked)
-        if !(unmarked_node == nothing)
+        if !isnothing(unmarked_node)
             visit(unmarked_node[1])
         end
     end

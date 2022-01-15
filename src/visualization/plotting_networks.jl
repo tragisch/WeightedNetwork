@@ -17,18 +17,18 @@ function plot_network(netw1::SparseMatrixCSC;
 
     p = gplot(swn,
         layout = layout,
-        NODESIZE = 0.14 / sqrt(n),
+        NODESIZE = 0.30 / sqrt(n),
         nodefillc = color,
         nodelabel = 1:n,
         nodelabeldist = 0,
         nodelabelangleoffset = π / 4,
-        NODELABELSIZE = (n < 50) ? 3 : 2,
+        NODELABELSIZE = (n < 50) ? 5 : 2,
         edgelabel = netw1.nzval,
         EDGELABELSIZE = label ? 3 : 0,
         edgestrokec = Colors.parse(Colorant, "gray74"),
         edgelinewidth = edgelinewidth,
-        EDGELINEWIDTH = 1.5 / sqrt(n),
-        arrowlengthfrac = (directed == false) ? 0.0 : maximum([0.025, 0.3 / length(netw1.nzval)]),
+        EDGELINEWIDTH = 1.7 / sqrt(n),
+        arrowlengthfrac = (directed == false) ? 0.0 : maximum([0.028, 0.3 / length(netw1.nzval)]),
         arrowangleoffset = (π / 9),
     )
     return p

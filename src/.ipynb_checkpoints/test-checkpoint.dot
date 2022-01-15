@@ -1,0 +1,32 @@
+digraph graphname {
+ size=4.0;
+ center=1;
+ concentrate=true;
+ 
+ 1 [shape=circle,color=red,height=0.05,fontsize=40,margin=0,orientation=90,width=0.05];
+ 2 [shape=circle,color=red,height=0.05,fontsize=40,margin=0,orientation=90,width=0.05];
+ 3 [shape=circle,color=red,height=0.05,fontsize=40,margin=0,orientation=90,width=0.05];
+ 4 [shape=circle,color=red,height=0.05,fontsize=40,margin=0,orientation=90,width=0.05];
+ 5 [shape=circle,color=red,height=0.05,fontsize=40,margin=0,orientation=90,width=0.05];
+ 6 [shape=circle,color=red,height=0.05,fontsize=40,margin=0,orientation=90,width=0.05];
+ 7 [shape=circle,color=red,height=0.05,fontsize=40,margin=0,orientation=90,width=0.05];
+ 8 [shape=circle,color=red,height=0.05,fontsize=40,margin=0,orientation=90,width=0.05];
+ 9 [shape=circle,color=red,height=0.05,fontsize=40,margin=0,orientation=90,width=0.05];
+ 10 [shape=circle,color=red,height=0.05,fontsize=40,margin=0,orientation=90,width=0.05];
+ 2 -> 1 [fontsize=40,arrowtype=normal,arrowsize=0.0], weight=sparse([2, 5, 8, 10, 9, 10, 6, 10, 8, 9, 2, 3, 2, 4, 9, 7], [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 10, 10)[node,kid]];
+ 2 -> 6 [fontsize=40,arrowtype=normal,arrowsize=0.0], weight=sparse([2, 5, 8, 10, 9, 10, 6, 10, 8, 9, 2, 3, 2, 4, 9, 7], [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 10, 10)[node,kid]];
+ 2 -> 7 [fontsize=40,arrowtype=normal,arrowsize=0.0], weight=sparse([2, 5, 8, 10, 9, 10, 6, 10, 8, 9, 2, 3, 2, 4, 9, 7], [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 10, 10)[node,kid]];
+ 3 -> 6 [fontsize=40,arrowtype=normal,arrowsize=0.0], weight=sparse([2, 5, 8, 10, 9, 10, 6, 10, 8, 9, 2, 3, 2, 4, 9, 7], [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 10, 10)[node,kid]];
+ 4 -> 8 [fontsize=40,arrowtype=normal,arrowsize=0.0], weight=sparse([2, 5, 8, 10, 9, 10, 6, 10, 8, 9, 2, 3, 2, 4, 9, 7], [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 10, 10)[node,kid]];
+ 5 -> 1 [fontsize=40,arrowtype=normal,arrowsize=0.0], weight=sparse([2, 5, 8, 10, 9, 10, 6, 10, 8, 9, 2, 3, 2, 4, 9, 7], [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 10, 10)[node,kid]];
+ 6 -> 4 [fontsize=40,arrowtype=normal,arrowsize=0.0], weight=sparse([2, 5, 8, 10, 9, 10, 6, 10, 8, 9, 2, 3, 2, 4, 9, 7], [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 10, 10)[node,kid]];
+ 7 -> 9 [fontsize=40,arrowtype=normal,arrowsize=0.0], weight=sparse([2, 5, 8, 10, 9, 10, 6, 10, 8, 9, 2, 3, 2, 4, 9, 7], [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 10, 10)[node,kid]];
+ 8 -> 1 [fontsize=40,arrowtype=normal,arrowsize=0.0], weight=sparse([2, 5, 8, 10, 9, 10, 6, 10, 8, 9, 2, 3, 2, 4, 9, 7], [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 10, 10)[node,kid]];
+ 8 -> 5 [fontsize=40,arrowtype=normal,arrowsize=0.0], weight=sparse([2, 5, 8, 10, 9, 10, 6, 10, 8, 9, 2, 3, 2, 4, 9, 7], [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 10, 10)[node,kid]];
+ 9 -> 3 [fontsize=40,arrowtype=normal,arrowsize=0.0], weight=sparse([2, 5, 8, 10, 9, 10, 6, 10, 8, 9, 2, 3, 2, 4, 9, 7], [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 10, 10)[node,kid]];
+ 9 -> 5 [fontsize=40,arrowtype=normal,arrowsize=0.0], weight=sparse([2, 5, 8, 10, 9, 10, 6, 10, 8, 9, 2, 3, 2, 4, 9, 7], [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 10, 10)[node,kid]];
+ 9 -> 8 [fontsize=40,arrowtype=normal,arrowsize=0.0], weight=sparse([2, 5, 8, 10, 9, 10, 6, 10, 8, 9, 2, 3, 2, 4, 9, 7], [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 10, 10)[node,kid]];
+ 10 -> 2 [fontsize=40,arrowtype=normal,arrowsize=0.0], weight=sparse([2, 5, 8, 10, 9, 10, 6, 10, 8, 9, 2, 3, 2, 4, 9, 7], [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 10, 10)[node,kid]];
+ 10 -> 3 [fontsize=40,arrowtype=normal,arrowsize=0.0], weight=sparse([2, 5, 8, 10, 9, 10, 6, 10, 8, 9, 2, 3, 2, 4, 9, 7], [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 10, 10)[node,kid]];
+ 10 -> 4 [fontsize=40,arrowtype=normal,arrowsize=0.0], weight=sparse([2, 5, 8, 10, 9, 10, 6, 10, 8, 9, 2, 3, 2, 4, 9, 7], [1, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 10, 10)[node,kid]];
+}

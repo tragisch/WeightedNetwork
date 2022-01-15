@@ -3,32 +3,36 @@
 # http://www.graphviz.org/Documentation/dotguide.pdf
 # http://www.graphviz.org/pub/scm/graphviz2/doc/info/lang.html
 
-# orientated on and based on:
-# https://github.com/epatters/Catlab.jl/blob/master/src/graphics/Graphviz.jl
+# orientated and based more or less on :
 # https://github.com/JuliaAttic/OldGraphs.jl/blob/master/src/dot.jl
+# https://github.com/tkf/ShowGraphviz.jl
 # and only simply modified (Roettgermann, 12/21)
 
 
 #typealias
 const AttributeDict = Dict{Symbol,Vector{String}}
 
-
 # define graphviz default attributes 
-function default_attributes(mat::SparseMatrixCSC; node_label::Bool = true, edge_label::Bool = true)
+function default_attributes(mat::SparseMatrixCSC; node_label::Bool = true, edge_label::Bool = true)::AttributeDict
     directed = Network.is_directed(mat)
+    #n = length(mat[1, :])   # ToDo: automated scaler
+    #size_graph=minimum(5.0 +*/sqrt, 15.0)
     attr = AttributeDict(
-        :arrowsize => ["E", (edge_label) ? "1.0" : "0.0"],
+        :weights => ["P", "false"],
+        :arrowsize => ["E", "1.0"],
         :arrowtype => ["E", "normal"],
         :center => ["G", "1"],
         :color => ["N", "red"],
         :concentrate => ["G", (directed) ? "true" : "false"],
-        :fontsize => ["NE", "40"],
+        :orientation => ["N", "90"],
+        :fontsize => ["N", "40"],
         :width => ["N", "0.05"],
         :height => ["N", "0.05"],
         :margin => ["N", "0"],
-        :landscape => ["G", "true"],
+        :labelfontsize => ["E", "8.0"],
         # :layout => ["G", " "], # dot or neato
-        :shape => ["N", (node_label) ? "circle" : "point"]
+        :size => ["G", "5.0"],
+        :shape => ["N", "circle"]
     )
 
     return attr
@@ -55,7 +59,7 @@ function get_GNE_attributes(attrs::AttributeDict, gne::String)
 end
 
 # get a suitable string out of the attribute dictionary:
-function to_dot(attrs::AttributeDict, gne::String)
+function _parse_attributes(mat::SparseMatrixCSC, attrs::AttributeDict, gne::String; weighted::Bool = false)
 
     gne_attrs = get_GNE_attributes(attrs, gne)
     str_attr::String = ""
@@ -69,9 +73,12 @@ function to_dot(attrs::AttributeDict, gne::String)
             end
         end
     elseif gne == "E" # edge attributes
-        str_attr = string("[", join(map(a -> to_dot(a[1], a[2][2]), collect(gne_attrs)), ","), "]")
+        if weighted
+            str_attr = string("[", join(map(a -> to_dot(a[1], a[2][2]), collect(gne_attrs)), ","))
+        else
+            str_attr = string("[", join(map(a -> to_dot(a[1], a[2][2]), collect(gne_attrs)), ","), "]")
+        end
     end
-
     return str_attr
 end
 
@@ -84,42 +91,54 @@ edge_op(mat::SparseMatrixCSC) = Network.is_directed(mat) ? "->" : "--"
 
 
 # Write the dot representation of a graph to a file by name.
-function to_dot(graph::SimpleWeightedDiGraph, filename::AbstractString; attrs::AttributeDict = default_attributes(graph))
+function to_dot_file(mat::SparseMatrixCSC, filename::AbstractString; attributes::AttributeDict = default_attributes(graph))
     open(filename, "w") do f
-        to_dot(graph.weights, f, attrs)
+        _to_dot(mat, f, attributes)
     end
 end
 
+to_dot_file(g::SimpleWeightedDiGraph, filename::AbstractString; attributes::AttributeDict = default_attributes(g)) = to_dot_file(g.weights, filename; attributes)
+to_dot_file(g::SimpleWeightedGraph, filename::AbstractString; attributes::AttributeDict = default_attributes(g)) = to_dot_file(g.weights, filename; attributes)
+
 # Get the dot representation of a graph as a string.
-function to_dot(graph::SimpleWeightedDiGraph; attrs::AttributeDict = default_attributes(graph))
+function to_dot(mat::SparseMatrixCSC; attributes::AttributeDict = default_attributes(graph))
     str = IOBuffer()
-    @show typeof(str)
-    to_dot(graph.weights, str, attrs)
+    _to_dot(mat, str, attributes)
     String(take!(str)) #takebuf_string(str)
 end
 
+to_dot(graph::SimpleWeightedDiGraph; attributes::AttributeDict = default_attributes(graph)) = to_dot(graph.weights; attributes)
+to_dot(graph::SimpleWeightedGraph; attributes::AttributeDict = default_attributes(graph)) = to_dot(graph.weights; attributes)
+
 # a DOT-Language representation:
-function to_dot(mat::SparseMatrixCSC, stream::IO, attrs::AttributeDict)
+function _to_dot(mat::SparseMatrixCSC, stream::IO, attrs::AttributeDict)
+
+    # check if `weighted` and labeled:
+    edge_label = false
+    if haskey(attrs, :weights)
+        attr_ = attrs[:weights][2]
+        (attr_ == "true") ? edge_label = true : edge_label = false
+    end
+    # write DOT:
     write(stream, "$(graph_type_string(mat)) graphname {\n")
     G = "G"
-    write(stream, "$(to_dot(attrs, G))\n")
+    write(stream, " $(_parse_attributes(mat,attrs, G))\n")
     n_vertices = length(mat[1, :])
+    N = "N"
     for node = 1:n_vertices
-        for val in values(attr)
-            if contains(val[1], "N")
-                N = "N"
-                write(stream, " $node $(to_dot(attrs, N));\n")
-            end
-
-        end
-
+        write(stream, " $node $(_parse_attributes(mat,attrs, N));\n")
     end
     for node = 1:n_vertices
         childs = Network.children(mat, node)
         E = "E"
         for kid in childs
-            if n > kid
-                write(stream, " $node $(edge_op(mat)) $kid $(to_dot(attrs, E));\n")
+            if n_vertices > kid
+                if edge_label
+                    w = mat[node, kid]
+                    write(stream, " $node $(edge_op(mat)) $kid $(_parse_attributes(mat,attrs, E; weighted=true)), xlabel=$w];\n")
+                else
+                    write(stream, " $node $(edge_op(mat)) $kid $(_parse_attributes(mat,attrs, E));\n")
+                end
             end
         end
     end
@@ -127,19 +146,27 @@ function to_dot(mat::SparseMatrixCSC, stream::IO, attrs::AttributeDict)
     return stream
 end
 
-# plot:
-function plot_graphviz(g::AbstractGraph; gviz_args = "")
-    if !isequal(gviz_args, "")
-        # Provide the command line code for GraphViz directly
-        cla_list = split(gviz_args)
-        arg = `$cla_list`
-    else
-        # Default uses x11 window
-        arg = `dot -Tsvg`
+# plot, using ShowGraphviz.jl package:
+function plot_graphviz(g::AbstractGraph; node_label::Bool = true, edge_label::Bool = true)
+    attributes = default_attributes(g)
+
+    # modfify arguments 
+    (node_label) ? attributes[:shape] = ["N", "circle"] : attributes[:shape] = ["N", "points"]
+    if edge_label
+        attributes[:weights] = ["E", "1"]
+        attributes[:arrowsize] = ["E", "1.0"]
     end
-    stdin, proc = open(arg, "w")
-    to_dot(g, stdin)
-    close(stdin)
+
+    gv_dot = to_dot(g; attributes)
+    plot_graphviz(gv_dot)
 end
+
+function plot_graphviz(g::AbstractGraph, attributes::AttributeDict)
+    gv_dot = to_dot(g; attributes)
+    plot_graphviz(gv_dot)
+end
+
+plot_graphviz(str::AbstractString) = ShowGraphviz.DOT(str)
+
 
 

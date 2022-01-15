@@ -17,6 +17,7 @@ Graphviz_jll = "3c863552-8265-54e4-a6dc-903eb78fde85"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+ShowGraphviz = "14e20f5a-e304-4f94-b7d9-bca841234ddf"
 SimpleWeightedGraphs = "47aef6b3-ad0c-573a-a1e2-d07658019622"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
