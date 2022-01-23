@@ -2,6 +2,7 @@
 # https://github.com/JuliaGraphs/GraphPlot.jl
 
 
+
 function plot_network(netw1::SparseMatrixCSC;
     layout = spring_layout,
     label = true,

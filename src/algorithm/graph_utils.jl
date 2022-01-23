@@ -35,12 +35,6 @@ function toplogicalsort!(mat::SparseMatrixCSC)
     end
 end
 
-function toplogicalsort!(net::SimpleWeightedGraph)
-    toplogicalsort!(net.weights)
-end
-function toplogicalsort!(net::SimpleWeightedDiGraph)
-    toplogicalsort!(net.weights)
-end
 
 function toplogicalsort(mat::SparseMatrixCSC; method = "kahn")
     if Network.is_directed(mat)
@@ -51,13 +45,21 @@ function toplogicalsort(mat::SparseMatrixCSC; method = "kahn")
         end
         return L, acyclic
     else
-        print("undirected graph. No topological order")
+        print("undirected graph or cyclic graph. No topological order")
         return [], false
     end
 end
 
 toplogicalsort(net::SimpleWeightedGraph; method = "kahn") = toplogicalsort(net.weights; method)
 toplogicalsort(net::SimpleWeightedDiGraph; method = "kahn") = toplogicalsort(net.weights; method)
+
+function is_acyclic(mat::SparseMatrixCSC)
+    L, acyclic = toplogicalsort(mat)
+    return acyclic
+end
+
+is_acyclic(net::SimpleWeightedGraph) = is_acyclic(net.weights)
+is_acyclic(net::SimpleWeightedDiGraph) = is_acyclic(net.weights)
 
 function _topologicalsort_kahn(mat::SparseMatrixCSC)
 
@@ -144,9 +146,40 @@ end
 
 
 function is_directed(mat::SparseMatrixCSC)
-    return !(mat == mat')
+    if !iszero(mat)
+        return !(mat == mat')
+    else
+        error("Zero-Matrix is not directed or undirected")
+    end
 end
 
 is_directed(g::SimpleWeightedDiGraph) = is_directed(g.weights)
 is_directed(g::SimpleWeightedGraph) = is_directed(g.weights)
 
+
+function is_tree(mat::SparseMatrixCSC)
+    # zusammenhängend
+    error("Is not implemented yet!")
+    # 
+end
+
+is_tree(g::SimpleWeightedDiGraph) = is_tree(g.weights)
+is_tree(g::SimpleWeightedGraph) = is_tree(g.weights)
+
+function is_symmetric(M::SparseMatrixCSC)
+    sz = size(M)
+
+    if sz[1] != sz[2]
+        return false
+    else
+
+        if M == M'
+            return true
+        else
+            return false
+        end
+    end
+end
+
+is_symmetric(g::SimpleWeightedDiGraph) = is_symmetric(g.weights)
+is_symmetric(g::SimpleWeightedGraph) = is_symmetric(g.weights)

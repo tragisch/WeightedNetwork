@@ -13,34 +13,51 @@
 const AttributeDict = Dict{Symbol,Vector{String}}
 
 # define graphviz default attributes 
-function default_attributes(mat::SparseMatrixCSC; node_label::Bool = true, edge_label::Bool = true)::AttributeDict
+function default_attributes(mat::SparseMatrixCSC; node_label::Bool = true, edge_label::Bool = false)::AttributeDict
     directed = Network.is_directed(mat)
-    #n = length(mat[1, :])   # ToDo: automated scaler
-    #size_graph=minimum(5.0 +*/sqrt, 15.0)
+    n = length(mat[1, :])
+    #size_graph=minimum(5.0 +*/sqrt, 15.0)  # ToDo: automated scaler
     attr = AttributeDict(
-        :weights => ["P", "false"],
-        :arrowsize => ["E", "1.0"],
+        :weights => ["P", (edge_label) ? "true" : "false"],
+        :largenet => ["P", "200"],
+        :arrowsize => ["E", "0.5"],
         :arrowtype => ["E", "normal"],
         :center => ["G", "1"],
-        :color => ["N", "red"],
-        :concentrate => ["G", (directed) ? "true" : "false"],
+        :overlap => ["G", "scale"],
+        :color => ["N", "Turquoise"],
+        :concentrate => ["G", "true"],
         :orientation => ["N", "90"],
-        :fontsize => ["N", "40"],
-        :width => ["N", "0.05"],
-        :height => ["N", "0.05"],
-        :margin => ["N", "0"],
-        :labelfontsize => ["E", "8.0"],
-        # :layout => ["G", " "], # dot or neato
-        :size => ["G", "5.0"],
-        :shape => ["N", "circle"]
+        :fontsize => ["N", (node_label) ? ((n < 100) ? "7.0" : "5") : "1.0"],
+        :width => ["N", (node_label) ? "0.25" : "0.20"],
+        :height => ["N", (node_label) ? "0.25" : "0.20"],
+        :fixedsize => ["N", "true"],
+        :fontsize => ["E", (edge_label) ? "8.0" : "1.0"],
+        :layout => ["G", (directed) ? "dot" : "neato"], # dot or neato
+        :size => ["G", (n < 20) ? "3.0" : ((n < 100) ? "7.0" : "10")],
+        :shape => ["N", (node_label) ? "circle" : "point"]
     )
+
+    # modify attr_ if it is a large network:
+    if n > parse(Int64, attr[:largenet][2])
+        attr = _mod_attr_large_network!(attr)
+    end
 
     return attr
 end
 
-default_attributes(g::SimpleWeightedGraph; node_label::Bool = true, edge_label::Bool = true) = default_attributes(g.weights; node_label, edge_label)
-default_attributes(g::SimpleWeightedDiGraph; node_label::Bool = true, edge_label::Bool = true) = default_attributes(g.weights; node_label, edge_label)
+default_attributes(g::SimpleWeightedGraph; node_label::Bool = true, edge_label::Bool = false) = default_attributes(g.weights; node_label, edge_label)
+default_attributes(g::SimpleWeightedDiGraph; node_label::Bool = true, edge_label::Bool = false) = default_attributes(g.weights; node_label, edge_label)
 
+
+function _mod_attr_large_network!(attrs::AttributeDict)
+    attrs[:shape] = ["N", "point"]
+    attrs[:color] = ["N", "black"]
+    attrs[:fontsize] = ["G", "1"]
+    attrs[:concetrate] = ["G", "true"]
+    attrs[:layout] = ["G", "sfdp"]
+    attrs[:weights] = ["P", "false"]
+    return attrs
+end
 
 # get `G`raph, `E`dge and `N`ode relateted attributes:
 function get_GNE_attributes(attrs::AttributeDict, gne::String)
@@ -141,28 +158,26 @@ function _to_dot(mat::SparseMatrixCSC, stream::IO, attrs::AttributeDict)
                 end
             end
         end
+
     end
     write(stream, "}\n")
     return stream
 end
 
 # plot, using ShowGraphviz.jl package:
-function plot_graphviz(g::AbstractGraph; node_label::Bool = true, edge_label::Bool = true)
-    attributes = default_attributes(g)
-
-    # modfify arguments 
-    (node_label) ? attributes[:shape] = ["N", "circle"] : attributes[:shape] = ["N", "points"]
-    if edge_label
-        attributes[:weights] = ["E", "1"]
-        attributes[:arrowsize] = ["E", "1.0"]
-    end
-
+function plot_graphviz(g::AbstractGraph; node_label::Bool = true, edge_label::Bool = false)
+    attributes = default_attributes(g; node_label = node_label, edge_label = edge_label)
     gv_dot = to_dot(g; attributes)
     plot_graphviz(gv_dot)
 end
 
 function plot_graphviz(g::AbstractGraph, attributes::AttributeDict)
     gv_dot = to_dot(g; attributes)
+    plot_graphviz(gv_dot)
+end
+
+function plot_graphviz(mat::SparseMatrixCSC, attributes::AttributeDict)
+    gv_dot = to_dot(mat; attributes)
     plot_graphviz(gv_dot)
 end
 
