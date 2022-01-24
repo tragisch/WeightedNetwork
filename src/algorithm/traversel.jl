@@ -79,14 +79,7 @@ function node_color(netw::AbstractSimpleWeightedGraph)
 
 end
 
-
-function bfs_path(netw::SimpleWeightedGraph, startnode::Int64, endnode::Int64)
-    g = SimpleGraph(netw)
-    return bfs_path(g, startnode, endnode)
-
-end
-
-function bfs_path(g::SimpleGraph, startnode::Int64, endnode::Int64)
+function bfs_path(g::AbstractSimpleWeightedGraph, startnode::Int64, endnode::Int64)
     n = nv(g)
 
     q = Queue{Int64}()

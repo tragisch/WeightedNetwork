@@ -18,7 +18,7 @@ export
     rand_network, rand_directed_network, rand_dag,
 
     # graph properties
-    children, parent, neighbors, is_directed, is_acyclic,
+    children, parent, neighbors,
 
     # dataformat
     adjacency_matrix, AdjacencyList,
