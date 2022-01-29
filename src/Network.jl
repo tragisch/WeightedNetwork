@@ -12,6 +12,7 @@ using ShowGraphviz
 using Cairo
 using Fontconfig
 using Random
+using Tokenize
 
 export
     # generators
@@ -27,7 +28,7 @@ export
     plot_network, plot_graph,
 
     # visualization mit Graphviz (for small graphs or use file_export:)
-    plot_graphviz, to_dot_file, AttributeDict, default_attributes,
+    plot_graphviz, write_dot_file, read_dot_file, AttributeDict, default_attributes,
 
     # algorithm:
     dfs_path, bfs_path, toplogicalsort, node_color, path_to_adj_matrix
