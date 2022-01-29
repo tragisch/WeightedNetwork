@@ -31,15 +31,16 @@ export
     plot_graphviz, write_dot_file, read_dot_file, AttributeDict, default_attributes,
 
     # algorithm:
-    dfs_path, bfs_path, toplogicalsort, node_color, path_to_adj_matrix
+    dfs_path, bfs_path, toplogicalsort, node_color, path_to_adj_matrix, shortest_path
 
 
 include("./data_types/graphdata_types.jl")
 include("./generators/random_networks.jl")
-include("./visualization/plotting_networks.jl")
+include("./visualization/gplots.jl")
+include("./visualization/dots.jl")
 include("./algorithm/traversel.jl")
 include("./algorithm/graph_utils.jl")
-include("./visualization/dot.jl")
+
 
 
 
