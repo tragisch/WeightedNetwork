@@ -28,4 +28,18 @@ Icon
 .AppleDesktop
 Network Trash Folder
 Temporary Items
-.apdisk
+src/Example.ipynb
+src/.ipynb_checkpoints/*.*
+application/Work.jl
+application/TryOut.ipynb
+application/Example.ipynb
+application/.ipynb_checkpoints/*.*
+application/*.*
+
+src/.ipynb_checkpoints/bsp-checkpoint.dot
+src/.ipynb_checkpoints/Example-checkpoint.ipynb
+src/.ipynb_checkpoints/large-checkpoint.dot
+src/.ipynb_checkpoints/mein-checkpoint.dot
+src/.ipynb_checkpoints/output-checkpoint.png
+src/.ipynb_checkpoints/test-checkpoint.dot
+.gitignore

@@ -12,7 +12,7 @@ function plot_network(netw1::SparseMatrixCSC;
     directed = !is_symmetric(netw1)
 
     n = netw1.m
-    swn = SimpleWeightedDiGraph(netw1)
+    swn = SimpleWeightedDiGraph(netw1')
 
 
     p = gplot(swn,
@@ -73,7 +73,7 @@ function plot_graph(g::SimpleDiGraph; color = false)
     sparse_mat = adjacency_matrix(g)
 
     if color
-        mat = SimpleWeightedDiGraph(sparse_mat)
+        mat = SimpleWeightedDiGraph(sparse_mat')
         colors = palette(:default, sparse_mat.m)
         comp = dfs_find_components(mat)
         plot_network(sparse_mat; label = false, color = colors[comp])

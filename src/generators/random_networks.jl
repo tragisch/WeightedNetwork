@@ -25,20 +25,24 @@ function rand_directed_network(nodeNumber::Int, density::Float64; weights = 1:10
             end
         end
     end
-    SimpleWeightedDiGraph(adj_matrix)
+    SimpleWeightedDiGraph(adj_matrix')
 end
 
-function is_symmetric(M::SparseMatrixCSC)
-    sz = size(M)
+function rand_dag(N::Int, p::Float64; weights = 1:10)
 
-    if sz[1] != sz[2]
-        return false
-    else
+    # schuffel vertiges
+    dag = zeros(N, N)
+    sink = Random.shuffle!(collect(1:N))
 
-        if M == M'
-            return true
-        else
-            return false
+    # randomly connect i>j nodes:
+    L = length(sink)
+    for k = 1:L
+        nArcs = trunc(Int, round(p * (L - k)))
+        idx = shuffle!(findall(x -> x > k, (1:L)))
+        for l = 1:nArcs
+            dag[sink[k], sink[idx[l]]] = rand(weights)
         end
     end
+
+    return SimpleWeightedDiGraph(dag') # stores transposed
 end

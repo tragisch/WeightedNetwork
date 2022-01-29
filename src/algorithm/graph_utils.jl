@@ -1,72 +1,47 @@
 
+# Parents: use findall in adjacency matrix, instead of `Graphs.innerneigbhors` method:
+children(mat::SparseMatrixCSC, node::Int64) = findall(x -> x != 0, mat[node, :])
+children(net::AbstractSimpleWeightedGraph, node::Int64) = Graphs.inneighbors(net, node)
 
-function children(mat::SparseMatrixCSC, node::Int64)
-    return findall(x -> x != 0, mat[node, :])
-end
+# Parents: use findall in adjacency matrix, instead of `Graphs.outneigbhors` method:
+parents(mat::SparseMatrixCSC, node::Int64) = findall(x -> x != 0, mat[:, node])
+parents(net::AbstractSimpleWeightedGraph, node::Int64) = Graphs.outneighbors(net, node)
 
-children(net::SimpleWeightedGraph, node::Int64) = children(net.weights, node)
-children(net::SimpleWeightedDiGraph, node::Int64) = children(net.weights, node)
-
-
-function parents(mat::SparseMatrixCSC, node::Int64)
-    return findall(x -> x != 0, mat[:, node])
-end
-
-parents(net::SimpleWeightedDiGraph, node::Int64) = parents(net.weights, node)
-parents(net::SimpleWeightedGraph, node::Int64) = parents(net.weights, node)
+# Parents: use findall in adjacency matrix, instead of `Graphs.all_neigbhors` method:
+neighbors(mat::SparseMatrixCSC, node::Int64) = union(children(mat, node), parents(mat, node))
+neighbors(net::AbstractSimpleWeightedGraph, node::Int64) = Graphs.all_neighbors(net, node)
 
 
-function neighbors(mat::SparseMatrixCSC, node::Int64)
-    return union(children(mat, node), parents(mat, node))
-end
-
-neighbors(net::SimpleWeightedGraph, node::Int64) = neighbors(net.weights, node)
-neighbors(net::SimpleWeightedDiGraph, node::Int64) = neighbors(net.weights, node)
-
-function toplogicalsort!(mat::SparseMatrixCSC)
-    order, acyclic = Network._topologicalsort_kahn(mat::SparseMatrixCSC)
-    if acyclic
-        n = length(mat[1, :])
-        mat2 = similar(mat)
-        for i = 1:n
-            mat2[i, :] = mat[order[i], :]
-        end
-        mat1 = mat2
-    end
-end
-
-function toplogicalsort!(net::SimpleWeightedGraph)
-    toplogicalsort!(net.weights)
-end
-function toplogicalsort!(net::SimpleWeightedDiGraph)
-    toplogicalsort!(net.weights)
-end
-
-function toplogicalsort(mat::SparseMatrixCSC; method = "kahn")
-    if Network.is_directed(mat)
-        if method == "kahn"
-            L, acyclic = _topologicalsort_kahn(mat)
+function toplogicalsort(net::AbstractSimpleWeightedGraph; method = "graphs")
+    if Graphs.is_directed(net)
+        if method == "dfs"
+            L, acyclic = _topologicalsort_dfs(net)
+        elseif method == "kahn"
+            L, acyclic = _topologicalsort_kahn(net)
         else
-            L, acyclic = _topologicalsort_dfs(mat)
+            try # Todo: ooh, that's not valid in all error cases!
+                acyclic = true
+                L = Graphs.topological_sort_by_dfs(net)
+            catch e
+                L = []
+                acyclic = false
+            end
         end
         return L, acyclic
     else
-        print("undirected graph. No topological order")
+        print("undirected graph or cyclic graph. No topological order")
         return [], false
     end
 end
 
-toplogicalsort(net::SimpleWeightedGraph; method = "kahn") = toplogicalsort(net.weights; method)
-toplogicalsort(net::SimpleWeightedDiGraph; method = "kahn") = toplogicalsort(net.weights; method)
-
-function _topologicalsort_kahn(mat::SparseMatrixCSC)
+function _topologicalsort_kahn(g::AbstractSimpleWeightedGraph)
 
     # if there exists a topological order of directed graph g, then it is acyclic
     acyclic = true
 
-    adj = deepcopy(mat)
+    adj = g.weights
     # get set $S$ of all nodes with no incoming edge
-    n = length(adj[1, :])
+    n = nv(g)
     S = Int64[]
     num_parents = zeros(Int, 1, n) # no incoming EDGELABELSIZE
     for i = 1:n
@@ -100,15 +75,17 @@ function _topologicalsort_kahn(mat::SparseMatrixCSC)
     end
 end
 
-function _topologicalsort_dfs(adj::SparseMatrixCSC)
+function _topologicalsort_dfs(g::AbstractSimpleWeightedGraph)
 
     # if there exists a topological order of directed graph g, then it is acyclic
     acyclic = true
 
-    mat = deepcopy(adj)
+    mat = g.weights
     L = Int64[]
-    n = length(mat[:, 1])
+    n = nv(g)
     marked = zeros(Int, 1, n)
+
+    # choose node with most children:
     unmarked_node = marked[1]
 
     function visit(node)
@@ -117,12 +94,13 @@ function _topologicalsort_dfs(adj::SparseMatrixCSC)
         elseif marked[node] == 1 # 1 = temporary mark
             acyclic = false # then this unacyclic and not a DAG.
             print("No tolpological order. This is not a DAG. The direct graph is cyclic!")
-            return []
+            return [], acyclic
         end
 
         marked[node] = 1
 
-        childs = Network.children(mat, node)
+        childs = Network.children(g, node)
+
         for kid in childs
             visit(kid)
         end
@@ -131,22 +109,75 @@ function _topologicalsort_dfs(adj::SparseMatrixCSC)
         push!(L, node)
     end
 
+    i = 1
     while !isnothing(unmarked_node)
         unmarked_node = findfirst(isequal(0), marked)
         if !isnothing(unmarked_node)
-            visit(unmarked_node[1])
+            visit(unmarked_node[2])
         end
     end
 
     return reverse(L), acyclic
+end
+
+# 8-May-1998	 4:44 PM	ATC	Created under MATLAB 5.1.0.421
+# ATC = Ali Taylan Cemgil,
+# SNN - University of Nijmegen, Department of Medical Physics and Biophysics
+# modified for Julia, Röttgermann, 12/2021
+# Test-only
+function _toposort(g::AbstractSimpleWeightedGraph)
+    adj = g.weights
+    N = nv(g)
+    indeg = sum(g, 2)
+    outdeg = sum(g, 1)
+
+    seq = Int64[]
+
+    for i = 1:N
+        idx = findall(x -> x == 0, indeg)
+
+        if isempty(idx)
+            seq = []
+            break
+        end
+
+        max, idx_max = findmax(outdeg[idx])
+        indx = idx[idx_max]
+        push!(seq, indx)
+
+        indeg[indx] = -1
+        idx = findall(x -> x > 0, adj[indx, :])
+        !isempty(idx) ? indeg[idx] = indeg[idx] .- 1 : nothing
+        @show seq
+    end
+
+    return vec(seq)'
 
 end
 
 
-function is_directed(mat::SparseMatrixCSC)
-    return !(mat == mat')
+function is_tree(mat::SparseMatrixCSC)
+    # zusammenhängend
+    error("Is not implemented yet!")
+    # 
 end
 
-is_directed(g::SimpleWeightedDiGraph) = is_directed(g.weights)
-is_directed(g::SimpleWeightedGraph) = is_directed(g.weights)
+is_tree(g::SimpleWeightedDiGraph) = is_tree(g.weights)
+is_tree(g::SimpleWeightedGraph) = is_tree(g.weights)
 
+function is_symmetric(M::SparseMatrixCSC)
+    sz = size(M)
+
+    if sz[1] != sz[2]
+        return false
+    else
+
+        if M == M'
+            return true
+        else
+            return false
+        end
+    end
+end
+
+is_symmetric(g::AbstractSimpleWeightedGraph) = is_symmetric(g.weights)

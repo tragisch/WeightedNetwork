@@ -79,14 +79,7 @@ function node_color(netw::AbstractSimpleWeightedGraph)
 
 end
 
-
-function bfs_path(netw::SimpleWeightedGraph, startnode::Int64, endnode::Int64)
-    g = SimpleGraph(netw)
-    return bfs_path(g, startnode, endnode)
-
-end
-
-function bfs_path(g::SimpleGraph, startnode::Int64, endnode::Int64)
+function bfs_path(g::AbstractSimpleWeightedGraph, startnode::Int64, endnode::Int64)
     n = nv(g)
 
     q = Queue{Int64}()
@@ -131,3 +124,17 @@ function bfs_path(g::SimpleGraph, startnode::Int64, endnode::Int64)
     return path
 
 end
+
+# shortest_path using dijkstra_shortest_paths form `Graphs.jl`:
+function shortest_path(g::AbstractSimpleWeightedGraph, source::Int64, sink::Int64)
+    ds = Graphs.dijkstra_shortest_paths(g, sink)
+    try
+        return reverse(spath(ds, source, sink))
+    catch e
+        return []
+    end
+
+end
+
+# convert precedessor list in path:
+spath(ds, source, sink) = source == sink ? source : [spath(ds, ds.parents[source], sink) source]
