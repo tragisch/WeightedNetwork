@@ -21,7 +21,7 @@ Some algorithms are implemented by myself. There are not more efficient or bette
 
 #### Random undirected networks
 
-Define a random undirected and weighted network $g$ with $n$ nodes and an edge density of $\rho$. Weights are in range from 1:10 per default.
+Define a random undirected and weighted network $g$ with $n$ nodes and an edge density of $p$. Weights are in range from 1:10 per default.
 
 
 ```julia
