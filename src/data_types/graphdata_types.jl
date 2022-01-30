@@ -1,5 +1,3 @@
-using SparseArrays
-
 abstract type GraphDataType end
 
 mutable struct AdjacencyList <: GraphDataType
