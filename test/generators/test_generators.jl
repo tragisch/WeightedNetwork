@@ -4,9 +4,9 @@
     # 
     m = 10
     density = 0.2
-    net = Network.rand_network(m, density)
-    adj = Network.AdjacencyList(net.weights)
-    mat = Network.adjacency_matrix(adj)
+    net = WeightedNetwork.rand_network(m, density)
+    adj = WeightedNetwork.AdjacencyList(net.weights)
+    mat = WeightedNetwork.adjacency_matrix(adj)
     @test mat == net.weights
 
 

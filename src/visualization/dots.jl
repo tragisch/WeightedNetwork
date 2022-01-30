@@ -38,7 +38,6 @@ function default_attributes(graph::AbstractSimpleWeightedGraph; node_label::Bool
         :overlap => ["G", "scale"],
         :color => ["N", "Turquoise"],
         :concentrate => ["G", "true"],
-        :orientation => ["N", "90"],
         :fontsize => ["N", (node_label) ? ((n < 100) ? "7.0" : "5") : "1.0"],
         :width => ["N", (node_label) ? "0.25" : "0.20"],
         :height => ["N", (node_label) ? "0.25" : "0.20"],
@@ -106,8 +105,8 @@ end
 
 # internal functions to identify strings:
 to_dot(sym::Symbol, value::String) = "$sym=$value"
-graph_type_string(graph::AbstractSimpleWeightedGraph) = Network.is_directed(graph) ? "digraph" : "graph"
-edge_op(graph::AbstractSimpleWeightedGraph) = Network.is_directed(graph) ? "->" : "--"
+graph_type_string(graph::AbstractSimpleWeightedGraph) = WeightedNetwork.is_directed(graph) ? "digraph" : "graph"
+edge_op(graph::AbstractSimpleWeightedGraph) = WeightedNetwork.is_directed(graph) ? "->" : "--"
 
 
 # internal function to get the dot representation of a graph as a string.
@@ -141,7 +140,7 @@ function to_dot(mat::AbstractSimpleWeightedGraph, stream::IO, attrs::AttributeDi
         write(stream, " $node $(_parse_attributes(mat,attrs, N)) $color_node;\n")
     end
     for node = 1:n_vertices
-        childs = Network.children(mat, node)
+        childs = WeightedNetwork.children(mat, node)
         E = "E"
         for kid in childs
             # if n_vertices > kid # seems to be wrong / to think about that.
@@ -176,9 +175,19 @@ Render graph `g` in iJulia using `Graphviz` engines.
 - `node_label::Bool`: if true all nodes are numberd fom 1:N (default = true)
 - `edge_label::Bool`: if true all edges are labeled with their weights (default = false)
 - (optional) `path = []`: Int-Array of nodes. Nodes and their edges are drawn in red color (i.e. shortest path)
+- (optional) `scale = 1.0`: Scale your plot
+- (optional) `landscape = false`: render landscape
 """
-function plot_graphviz(g::AbstractSimpleWeightedGraph, node_label::Bool = true, edge_label::Bool = false; path = [])
+function plot_graphviz(g::AbstractSimpleWeightedGraph; node_label::Bool = true, edge_label::Bool = false,
+    path = [],
+    scale = 3.0,
+    landscape = false)
+
     attributes = default_attributes(g; node_label = node_label, edge_label = edge_label)
+    attributes[:size] = ["G", string(scale)]
+    (edge_label) ? attributes[:forcelabels] = ["G", "true"] : nothing
+    (landscape) ? attributes[:orientation] = ["G", "LR"] : nothing
+
     gv_dot = to_dot(g; attributes = attributes, path = path)
     plot_graphviz(gv_dot)
 end
@@ -188,7 +197,7 @@ end
     plot_graphviz(g, attributes; path = [])
 
 
-Render graph `g` in iJulia using `Graphviz` engines.
+Render graph `g` in **iJulia** using `Graphviz` engines.
 
 #### Arguments
 - `g::AbstractSimpleWeightedGraph`: a graph representation to export 
@@ -200,7 +209,10 @@ function plot_graphviz(g::AbstractSimpleWeightedGraph, attributes::AttributeDict
     plot_graphviz(gv_dot)
 end
 
-plot_graphviz(str::AbstractString) = ShowGraphviz.DOT(str)
+function plot_graphviz(str::AbstractString)
+    ShowGraphviz.CONFIG.dot_option = `-q` # do not warn in iJulia!
+    ShowGraphviz.DOT(str)
+end
 
 
 """

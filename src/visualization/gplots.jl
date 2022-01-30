@@ -17,7 +17,7 @@ function plot_network(netw1::SparseMatrixCSC;
 
     p = gplot(swn,
         layout = layout,
-        NODESIZE = 0.25 / sqrt(n),
+        NODESIZE = 0.20 / sqrt(n),
         nodefillc = color,
         nodelabel = 1:n,
         nodelabeldist = 0,

@@ -1,5 +1,4 @@
-using Network
-using Network # own!
+using WeightedNetwork
 
 using Test
 using SparseArrays
@@ -23,7 +22,7 @@ tests = [
     "generators/test_graph_utils"
 ]
 
-@testset "Network.jl" begin
+@testset "WeightedNetwork.jl" begin
     for t in tests
         tp = joinpath(testdir, "$(t).jl")
         include(tp)

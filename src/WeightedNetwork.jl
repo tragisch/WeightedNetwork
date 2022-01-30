@@ -1,4 +1,4 @@
-module Network
+module WeightedNetwork
 
 using SparseArrays
 using Graphs
@@ -9,8 +9,8 @@ using Plots
 using GraphPlot
 using DataStructures
 using ShowGraphviz
-using Cairo
-using Fontconfig
+# using Cairo
+# using Fontconfig
 using Random
 using Tokenize
 

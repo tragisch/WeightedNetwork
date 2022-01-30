@@ -25,7 +25,7 @@ function rand_directed_network(nodeNumber::Int, density::Float64; weights = 1:10
             end
         end
     end
-    SimpleWeightedDiGraph(adj_matrix')
+    SimpleWeightedDiGraph(adj_matrix)
 end
 
 function rand_dag(N::Int, p::Float64; weights = 1:10)
@@ -44,5 +44,5 @@ function rand_dag(N::Int, p::Float64; weights = 1:10)
         end
     end
 
-    return SimpleWeightedDiGraph(dag') # stores transposed
+    return SimpleWeightedDiGraph(dag) # stores transposed
 end

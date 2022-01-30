@@ -9,16 +9,16 @@
     ])
 
     # test children of AdjacencyMatrix
-    @test Network.children(M, 1) == [2, 3, 4]
-    @test Network.children(M, 2) == [1, 3, 4]
-    @test Network.children(M, 3) == [1, 2, 4]
-    @test Network.children(M, 4) == [1, 2, 3]
+    @test WeightedNetwork.children(M, 1) == [2, 3, 4]
+    @test WeightedNetwork.children(M, 2) == [1, 3, 4]
+    @test WeightedNetwork.children(M, 3) == [1, 2, 4]
+    @test WeightedNetwork.children(M, 4) == [1, 2, 3]
 
     # test parents of AdjacencyMatrix
-    @test Network.parents(M, 1) == [2, 3, 4]
-    @test Network.parents(M, 2) == [1, 3, 4]
-    @test Network.parents(M, 3) == [1, 2, 4]
-    @test Network.parents(M, 4) == [1, 2, 3]
+    @test WeightedNetwork.parents(M, 1) == [2, 3, 4]
+    @test WeightedNetwork.parents(M, 2) == [1, 3, 4]
+    @test WeightedNetwork.parents(M, 3) == [1, 2, 4]
+    @test WeightedNetwork.parents(M, 4) == [1, 2, 3]
 
     SyM = zeros(10, 10)
     SyM[3, 1] = -0.9521
@@ -45,7 +45,7 @@
     SyM2[7, 3] = 1.9876
 
     # test symmetric of Matrix
-    @test Network.is_symmetric(SparseMatrixCSC(SyM)) == true
-    @test Network.is_symmetric(SparseMatrixCSC(SyM2)) == false
+    @test WeightedNetwork.is_symmetric(SparseMatrixCSC(SyM)) == true
+    @test WeightedNetwork.is_symmetric(SparseMatrixCSC(SyM2)) == false
 
 end

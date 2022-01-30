@@ -45,7 +45,7 @@ function _topologicalsort_kahn(g::AbstractSimpleWeightedGraph)
     S = Int64[]
     num_parents = zeros(Int, 1, n) # no incoming EDGELABELSIZE
     for i = 1:n
-        num_parents[i] = length(Network.parents(adj, i))
+        num_parents[i] = length(WeightedNetwork.parents(adj, i))
         if num_parents[i] == 0
             push!(S, i)
         end
@@ -56,10 +56,10 @@ function _topologicalsort_kahn(g::AbstractSimpleWeightedGraph)
     while !isempty(S)
         node = pop!(S)
         push!(L, node)
-        childs = Network.children(adj, node)
+        childs = WeightedNetwork.children(adj, node)
         for kid in childs
             adj[node, kid] = 0
-            if length(Network.parents(adj, kid)) == 0
+            if length(WeightedNetwork.parents(adj, kid)) == 0
                 push!(S, kid)
             end
         end
@@ -99,7 +99,7 @@ function _topologicalsort_dfs(g::AbstractSimpleWeightedGraph)
 
         marked[node] = 1
 
-        childs = Network.children(g, node)
+        childs = WeightedNetwork.children(g, node)
 
         for kid in childs
             visit(kid)
