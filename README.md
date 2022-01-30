@@ -87,7 +87,7 @@ Or calculate the shortest path with `Graphs.dijkstra_shortest_paths`. Or use a s
 
 
 ```julia
-L = WeightedNetwork.shortest_path(net, 8,10); # oh! wrong result! Why?? Fix it
+L = WeightedNetwork.shortest_path(net, 8,10);
 plot_graphviz(net;scale=3, path=L)
 ```
 
