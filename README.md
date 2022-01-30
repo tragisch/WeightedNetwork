@@ -116,7 +116,7 @@ WeightedNetwork.plot_graphviz(dag)
 
 
 
-For this we can get a topological_sort, so that all edges have same direction. **Note**: `Graphviz` sort the edges already in its render algoritm.
+For this we can get a topological_sort, so that all edges have same direction. **Note**: `Graphviz` sort the edges already in its render algorithm.
 
 
 ```julia
