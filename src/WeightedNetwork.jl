@@ -16,7 +16,7 @@ using Tokenize
 
 export
     # generators
-    rand_network, rand_directed_network, rand_dag,
+    rand_network, rand_directed_network, rand_dag, mk_connected_layered_dag,
 
     # graph properties
     children, parent, neighbors,
