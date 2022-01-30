@@ -83,7 +83,7 @@ So you can use **complete functionality** of `Graph.jl` and `SimpleWeightedGraph
     Graphs.has_self_loops(net) = false
 
 
-Or calculate the shortest path with `Graphs.dijkstra_shortest_paths`. Or use a shortcut:
+Or calculate the shortest path with `Graphs.dijkstra_shortest_paths`. Here we use a shortcut wrapper defined in `WeightedNetworks.jl`:
 
 
 ```julia
@@ -116,7 +116,7 @@ WeightedNetwork.plot_graphviz(dag)
 
 
 
-For this we can get a topological_sort, so that all edges have same direction. **Note**: `Graphviz` sort the edges already in its render algorithm.
+For this we can get a topological sort, so that all edges have same direction. **Note**: `Graphviz` sort the edges already in its render algorithm.
 
 
 ```julia
@@ -159,7 +159,7 @@ plot_graphviz(dag)
 
 #### Import *dot*-files:
 
-There are differnt packages available to import `dot`-files (`GraphIO.jl`, ...). Here we use a simple *import* function from `WeightedNetworks.jl`:
+There are different packages available to import `dot`-files (`GraphIO.jl`, ...). Here we use a simple *import* function from `WeightedNetworks.jl`:
 
 
 ```julia
