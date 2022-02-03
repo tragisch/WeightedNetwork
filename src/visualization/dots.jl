@@ -25,7 +25,7 @@ For example the following dict-Entry set the layout engine to `dot`.
 #### Arguments
 - `g::AbstractSimpleWeightedGraph`: a graph representation to export 
 """
-function default_attributes(graph::AbstractSimpleWeightedGraph; node_label::Bool = true, edge_label::Bool = false)::AttributeDict
+function get_attributes(graph::AbstractSimpleWeightedGraph; node_label::Bool = true, edge_label::Bool = false)::AttributeDict
     directed = Graphs.is_directed(graph)
     n = nv(graph)
     #size_graph=minimum(5.0 +*/sqrt, 15.0)  # ToDo: automated scaler
@@ -68,7 +68,7 @@ function _mod_attr_large_network!(attrs::AttributeDict)
 end
 
 # internal function to get `G`raph, `E`dge and `N`ode relateted attributes:
-function get_GNE_attributes(attrs::AttributeDict, gne::String)
+function _get_GNE_attributes(attrs::AttributeDict, gne::String)
     if !isempty(attrs)
         GNE_attrs = Dict()
         for key in keys(attrs)
@@ -86,38 +86,84 @@ end
 # internal function to get a suitable string out of the attribute dictionary:
 function _parse_attributes(mat::AbstractSimpleWeightedGraph, attrs::AttributeDict, gne::String)
 
-    gne_attrs = get_GNE_attributes(attrs, gne)
+    gne_attrs = _get_GNE_attributes(attrs, gne)
     str_attr::String = ""
 
     if gne == "N" # node attributes
-        str_attr = string("[", join(map(a -> to_dot(a[1], a[2][2]), collect(gne_attrs)), ","))
+        str_attr = string("[", join(map(a -> _to_dot(a[1], a[2][2]), collect(gne_attrs)), ","))
     elseif gne == "G" # graph attributes
         for key in keys(attrs)
             if contains(attrs[key][1], "G")
-                str_attr = str_attr * string(to_dot(key, attrs[key][2]), ";\n ")
+                str_attr = str_attr * string(_to_dot(key, attrs[key][2]), ";\n ")
             end
         end
     elseif gne == "E" # edge attributes
-        str_attr = string("[", join(map(a -> to_dot(a[1], a[2][2]), collect(gne_attrs)), ","))
+        str_attr = string("[", join(map(a -> _to_dot(a[1], a[2][2]), collect(gne_attrs)), ","))
     end
     return str_attr
 end
 
 # internal functions to identify strings:
-to_dot(sym::Symbol, value::String) = "$sym=$value"
-graph_type_string(graph::AbstractSimpleWeightedGraph) = WeightedNetwork.is_directed(graph) ? "digraph" : "graph"
-edge_op(graph::AbstractSimpleWeightedGraph) = WeightedNetwork.is_directed(graph) ? "->" : "--"
+_to_dot(sym::Symbol, value::String) = "$sym=$value"
+_graph_type_string(graph::AbstractSimpleWeightedGraph) = WeightedNetwork.is_directed(graph) ? "digraph" : "graph"
+_edge_op(graph::AbstractSimpleWeightedGraph) = WeightedNetwork.is_directed(graph) ? "->" : "--"
 
 
 # internal function to get the dot representation of a graph as a string.
-function to_dot(graph::AbstractSimpleWeightedGraph; attributes::AttributeDict = default_attributes(graph), path = [])
+function _to_dot(graph::AbstractSimpleWeightedGraph; attributes::AttributeDict = get_attributes(graph), path = zeros(Int, nv(g)))
     str = IOBuffer()
-    to_dot(graph, str, attributes; path = path)
+    _to_dot(graph, str, attributes; path = path)
     String(take!(str)) #takebuf_string(str)
 end
 
+# helper function to identify all_zero Array
+_is_all_zero(arr) = length(arr) == 0 || all(==(0), arr)
+
+
+# helper function to reduze colors 
+function _reduce_colors!(components)
+    n = length(components)
+    cz = zeros(Int, n)
+    co = deepcopy(components)
+    min = 1
+    while true
+        for i = 1:n
+            cz[i] = length(findall(x -> x == co[i], co))
+        end
+        idx = findall(x -> x < min, cz)
+        co[idx] .= 0
+
+        j = 1
+        ma = maximum(co)
+        for i = 1:ma
+            idx = findall(x -> x == i, co)
+            if !isempty(idx)
+                co[idx] .= j
+                j = j + 1
+            end
+        end
+
+        # end while
+        (maximum(co)<9):break:(min=min+1)
+    end
+
+    return components = co
+end
+
 # internal function DOT-Language representation:
-function to_dot(mat::AbstractSimpleWeightedGraph, stream::IO, attrs::AttributeDict; path = [])
+function _to_dot(mat::AbstractSimpleWeightedGraph, stream::IO, attrs::AttributeDict; path = zeros(Int, nv(mat)))
+
+    # standard colorscheme (max 9)
+    if (!_is_all_zero(path))  # ToDo: no hardcoded part!!!!
+        if maximum(path) > 9
+            path = _reduce_colors!(path)
+        end
+        color_scheme = "colorscheme=set19"
+        color = true
+    else
+        path = zeros(Int, nv(mat))
+        color = false
+    end
 
     # check if `weighted` and labeled:
     edge_label = false
@@ -126,14 +172,15 @@ function to_dot(mat::AbstractSimpleWeightedGraph, stream::IO, attrs::AttributeDi
         (attr_ == "true") ? edge_label = true : edge_label = false
     end
     # write DOT:
-    write(stream, "$(graph_type_string(mat)) graphname {\n")
+    write(stream, "$(_graph_type_string(mat)) graphname {\n")
     G = "G"
     write(stream, " $(_parse_attributes(mat,attrs, G))\n")
+    (color == true) ? write(stream, " node [$color_scheme]\n") : nothing
     n_vertices = nv(mat)
     N = "N"
     for node = 1:n_vertices
-        if !isempty(path) && !Base.isnothing(findfirst(isequal(node), path))
-            color_node = ",color=red]" # hard-coded> ToDo: could be part of attribute_list
+        if color && (path[node] > 0)
+            color_node = ",color=$(path[node])]"
         else
             color_node = "]"
         end
@@ -144,17 +191,17 @@ function to_dot(mat::AbstractSimpleWeightedGraph, stream::IO, attrs::AttributeDi
         E = "E"
         for kid in childs
             # if n_vertices > kid # seems to be wrong / to think about that.
-            if !isempty(path) && !Base.isnothing(findfirst(isequal(node), path)) && !Base.isnothing(findfirst(isequal(kid), path))
-                edge_node = ",color=red]" # hard-coded> ToDo: could be part of attribute_list
+            if color && (path[node] > 0) && (path[kid] > 0)
+                edge_node = ",color=$(path[node])]"
             else
                 edge_node = "]"
             end
 
             if edge_label
                 w = mat.weights[node, kid]
-                write(stream, " $node $(edge_op(mat)) $kid $(_parse_attributes(mat,attrs, E)), xlabel=$w $edge_node;\n")
+                write(stream, " $node $(_edge_op(mat)) $kid $(_parse_attributes(mat,attrs, E)), xlabel=$w $edge_node;\n")
             else
-                write(stream, " $node $(edge_op(mat)) $kid $(_parse_attributes(mat,attrs, E)) $edge_node;\n")
+                write(stream, " $node $(_edge_op(mat)) $kid $(_parse_attributes(mat,attrs, E)) $edge_node;\n")
             end
             # end
         end
@@ -165,7 +212,7 @@ function to_dot(mat::AbstractSimpleWeightedGraph, stream::IO, attrs::AttributeDi
 end
 
 """
-    plot_graphviz(g, node_label= true, edge_label=false; path = [])
+    plot_graphviz(g, node_label= true, edge_label=false; path = zeros(Int, nv(mat))
 
 
 Render graph `g` in iJulia using `Graphviz` engines.
@@ -174,27 +221,27 @@ Render graph `g` in iJulia using `Graphviz` engines.
 - `g::AbstractSimpleWeightedGraph`: a graph representation to export 
 - `node_label::Bool`: if true all nodes are numberd fom 1:N (default = true)
 - `edge_label::Bool`: if true all edges are labeled with their weights (default = false)
-- (optional) `path = []`: Int-Array of nodes. Nodes and their edges are drawn in red color (i.e. shortest path)
+- (optional) `path = zeros(Int, nv(mat)`: Int-Array of nodes. Nodes and their edges are drawn in red color (i.e. shortest path)
 - (optional) `scale = 1.0`: Scale your plot
 - (optional) `landscape = false`: render landscape
 """
 function plot_graphviz(g::AbstractSimpleWeightedGraph; node_label::Bool = true, edge_label::Bool = false,
-    path = [],
+    path = zeros(Int, nv(g)),
     scale = 3.0,
     landscape = false)
 
-    attributes = default_attributes(g; node_label = node_label, edge_label = edge_label)
+    attributes = get_attributes(g; node_label = node_label, edge_label = edge_label)
     attributes[:size] = ["G", string(scale)]
     (edge_label) ? attributes[:forcelabels] = ["G", "true"] : nothing
     (landscape) ? attributes[:orientation] = ["G", "LR"] : nothing
 
-    gv_dot = to_dot(g; attributes = attributes, path = path)
+    gv_dot = _to_dot(g; attributes = attributes, path = path)
     plot_graphviz(gv_dot)
 end
 
 
 """
-    plot_graphviz(g, attributes; path = [])
+    plot_graphviz(g, attributes; path = zeros(Int, nv(mat)))
 
 
 Render graph `g` in **iJulia** using `Graphviz` engines.
@@ -202,10 +249,10 @@ Render graph `g` in **iJulia** using `Graphviz` engines.
 #### Arguments
 - `g::AbstractSimpleWeightedGraph`: a graph representation to export 
 - `attributes::AttributeDict`: Render with own set of plotting attributes (see http://www.graphviz.org/ for details)
-- (optional) `path = []`: Int-Array of nodes. Nodes and their edges are drawn in red color (i.e. shortest path)
+- (optional) `path = zeros(Int, nv(mat))`: Int-Array of nodes. Nodes and their edges are drawn in red color (i.e. shortest path)
 """
-function plot_graphviz(g::AbstractSimpleWeightedGraph, attributes::AttributeDict; path = [])
-    gv_dot = to_dot(g; attributes = attributes, path = path)
+function plot_graphviz(g::AbstractSimpleWeightedGraph, attributes::AttributeDict; path = zeros(Int, nv(g)))
+    gv_dot = _to_dot(g; attributes = attributes, path = path)
     plot_graphviz(gv_dot)
 end
 
@@ -225,11 +272,11 @@ Export graph `g` to DOT-Format and store it in file `file`.
 - `g::AbstractSimpleWeightedGraph`: a graph representation to export 
 - `filename::AbstractString`: the filename to store (i.e. "graph.dot")
 - (optional) `attributes::AttributeDict`: Dot-Attributes like node color stored in a dictionary
-- (optional) `path = []`: Int-Array of nodes. Nodes and their edges are drawn in red color (i.e. shortest path)
+- (optional) `path = zeros(Int, nv(mat))`: Int-Array of nodes. Nodes and their edges are drawn in red color (i.e. shortest path)
 """
-function write_dot_file(graph::AbstractSimpleWeightedGraph, filename::AbstractString; attributes::AttributeDict = default_attributes(graph), path = [])
+function write_dot_file(graph::AbstractSimpleWeightedGraph, filename::AbstractString; attributes::AttributeDict = get_attributes(graph), path = zeros(Int, nv(mat)))
     open(filename, "w") do f
-        to_dot(graph, f, attributes; path = path)
+        _to_dot(graph, f, attributes; path = path)
     end
 end
 
