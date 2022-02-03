@@ -41,7 +41,7 @@ WeightedNetwork.plot_graphviz(g;edge_label=true)
 
 ![undirected_network](doc/README_files/README_10_0.png)
 
-Using `Cairo.jl` and `Fontconfig.jl` to plot these graphs outside iJulia, or use `WeightedNetwork.network_plot(net)`, which is based `GraphPlot.jl`.
+Using `Cairo.jl` and `Fontconfig.jl` to plot these graphs outside iJulia, or use `WeightedNetwork.network_plot(net)`, which is based on `GraphPlot.jl`.
 
 Define a random directed network with $n$ nodes and an edge density of $\rho$. The network ist weighted with randomly edge_weights between the range $R$:
 
