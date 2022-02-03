@@ -142,26 +142,26 @@ end
     mk_directed_grid(n::Int,m::Int)
 
 
-Generate a directed grid graph `g` with $n$ rows and $m$ column
+Generate a directed grid graph `g` with ``n`` rows and m column
 
 #### Arguments
 - `n::Int`: number of rows
 - `m::Int`: number of columns
 - (optional) `weights = 1:1`: Edge-weights randomly between k:K
 """
-function mk_directed_grid(n::Int,m::Int; weights=1:1)
-   dim = m*n
-   adj = SparseMatrixCSC(zeros(dim,dim))
- 
-   for i = 1:m*n
-        if i+1 <= ceil(i/n)*n
-            adj[i,i+1] = rand(weights)
-        end   
-        if i+n <= n*m 
-            adj[i,i+n] = rand(weights)
+function mk_directed_grid(n::Int, m::Int; weights = 1:1)
+    dim = m * n
+    adj = SparseMatrixCSC(zeros(dim, dim))
+
+    for i = 1:m*n
+        if i + 1 <= ceil(i / n) * n
+            adj[i, i+1] = rand(weights)
+        end
+        if i + n <= n * m
+            adj[i, i+n] = rand(weights)
         end
     end
-    
+
     return SimpleWeightedDiGraph(adj')
 end
 
@@ -170,23 +170,23 @@ end
     mk_grid(n::Int,m::Int)
 
 
-Generate a (undirected) grid graph `g` with $n$ rows and $m$ column
+Generate a (undirected) grid graph `g` with n rows and m column
 
 #### Arguments
 - `n::Int`: number of rows
 - `m::Int`: number of columns
 - (optional) `weights = 1:1`: Edge-weights randomly between k:K
 """
-function mk_grid(n::Int,m::Int; weights=1:1)
-    grid = mk_directed_grid_graph(n,m, weights)
+function mk_grid(n::Int, m::Int; weights = 1:1)
+    grid = mk_directed_grid_graph(n, m, weights)
     dim = nv(grid)
-        
-    for j=1:m
-        for i=1:n
-            grid.weights[j,i] = grid.weights[i,j]
+
+    for j = 1:m
+        for i = 1:n
+            grid.weights[j, i] = grid.weights[i, j]
         end
     end
-    
+
     return SimpleWeightedGraph(grid)
-    
+
 end

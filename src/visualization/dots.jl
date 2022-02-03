@@ -110,9 +110,9 @@ _edge_op(graph::AbstractSimpleWeightedGraph) = WeightedNetwork.is_directed(graph
 
 
 # internal function to get the dot representation of a graph as a string.
-function _to_dot(graph::AbstractSimpleWeightedGraph; attributes::AttributeDict = get_attributes(graph), path = zeros(Int, nv(g)))
+function _to_dot(graph::AbstractSimpleWeightedGraph; attributes::AttributeDict = get_attributes(graph), path = [], colors = zeros(Int, nv(g)))
     str = IOBuffer()
-    _to_dot(graph, str, attributes; path = path)
+    _to_dot(graph, str, attributes; path = path, colors = colors)
     String(take!(str)) #takebuf_string(str)
 end
 
@@ -151,17 +151,19 @@ function _reduce_colors!(components)
 end
 
 # internal function DOT-Language representation:
-function _to_dot(mat::AbstractSimpleWeightedGraph, stream::IO, attrs::AttributeDict; path = zeros(Int, nv(mat)))
+function _to_dot(mat::AbstractSimpleWeightedGraph, stream::IO, attrs::AttributeDict;
+    path = [], # path in network
+    colors = zeros(Int, nv(mat))) # components colors
 
     # standard colorscheme (max 9)
-    if (!_is_all_zero(path))  # ToDo: no hardcoded part!!!!
-        if maximum(path) > 9
-            path = _reduce_colors!(path)
+    if (!_is_all_zero(colors))  # ToDo: no hardcoded part!!!!
+        if maximum(colors) > 9
+            colors = _reduce_colors!(colors)
         end
         color_scheme = "colorscheme=set19"
         color = true
     else
-        path = zeros(Int, nv(mat))
+        colors = zeros(Int, nv(mat))
         color = false
     end
 
@@ -179,8 +181,10 @@ function _to_dot(mat::AbstractSimpleWeightedGraph, stream::IO, attrs::AttributeD
     n_vertices = nv(mat)
     N = "N"
     for node = 1:n_vertices
-        if color && (path[node] > 0)
-            color_node = ",color=$(path[node])]"
+        if color && (colors[node] > 0)
+            color_node = ",color=$(colors[node])]"
+        elseif !isempty(path) && !Base.isnothing(findfirst(isequal(node), path))
+            color_node = ",color=red]"
         else
             color_node = "]"
         end
@@ -191,8 +195,10 @@ function _to_dot(mat::AbstractSimpleWeightedGraph, stream::IO, attrs::AttributeD
         E = "E"
         for kid in childs
             # if n_vertices > kid # seems to be wrong / to think about that.
-            if color && (path[node] > 0) && (path[kid] > 0)
+            if color && (colors[node] > 0) && (colors[kid] > 0)
                 edge_node = ",color=$(path[node])]"
+            elseif !isempty(path) && !Base.isnothing(findfirst(isequal(node), path)) && !Base.isnothing(findfirst(isequal(kid), path))
+                edge_node = ",color=red]"
             else
                 edge_node = "]"
             end
@@ -226,7 +232,8 @@ Render graph `g` in iJulia using `Graphviz` engines.
 - (optional) `landscape = false`: render landscape
 """
 function plot_graphviz(g::AbstractSimpleWeightedGraph; node_label::Bool = true, edge_label::Bool = false,
-    path = zeros(Int, nv(g)),
+    colors = zeros(Int, nv(g)),
+    path = [],
     scale = 3.0,
     landscape = false)
 
@@ -235,7 +242,7 @@ function plot_graphviz(g::AbstractSimpleWeightedGraph; node_label::Bool = true, 
     (edge_label) ? attributes[:forcelabels] = ["G", "true"] : nothing
     (landscape) ? attributes[:orientation] = ["G", "LR"] : nothing
 
-    gv_dot = _to_dot(g; attributes = attributes, path = path)
+    gv_dot = _to_dot(g; attributes = attributes, path = path, colors = colors)
     plot_graphviz(gv_dot)
 end
 
@@ -251,8 +258,8 @@ Render graph `g` in **iJulia** using `Graphviz` engines.
 - `attributes::AttributeDict`: Render with own set of plotting attributes (see http://www.graphviz.org/ for details)
 - (optional) `path = zeros(Int, nv(mat))`: Int-Array of nodes. Nodes and their edges are drawn in red color (i.e. shortest path)
 """
-function plot_graphviz(g::AbstractSimpleWeightedGraph, attributes::AttributeDict; path = zeros(Int, nv(g)))
-    gv_dot = _to_dot(g; attributes = attributes, path = path)
+function plot_graphviz(g::AbstractSimpleWeightedGraph, attributes::AttributeDict; path = [], colors = zeros(Int, nv(g)))
+    gv_dot = _to_dot(g; attributes = attributes, path = path, colors = colors)
     plot_graphviz(gv_dot)
 end
 
@@ -274,7 +281,8 @@ Export graph `g` to DOT-Format and store it in file `file`.
 - (optional) `attributes::AttributeDict`: Dot-Attributes like node color stored in a dictionary
 - (optional) `path = zeros(Int, nv(mat))`: Int-Array of nodes. Nodes and their edges are drawn in red color (i.e. shortest path)
 """
-function write_dot_file(graph::AbstractSimpleWeightedGraph, filename::AbstractString; attributes::AttributeDict = get_attributes(graph), path = zeros(Int, nv(mat)))
+function write_dot_file(graph::AbstractSimpleWeightedGraph, filename::AbstractString;
+    attributes::AttributeDict = get_attributes(graph), path = [], colors = zeros(Int, nv(mat)))
     open(filename, "w") do f
         _to_dot(graph, f, attributes; path = path)
     end

@@ -32,7 +32,7 @@ export
     plot_graphviz, write_dot_file, read_dot_file, AttributeDict, get_attributes,
 
     # algorithm:
-    dfs_path, bfs_path, toplogicalsort, connected_components, shortest_path, spath
+    dfs_path, bfs_path, toplogicalsort, connected_components, spath
 
 
 include("./data_types/graphdata_types.jl")
